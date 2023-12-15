@@ -21,7 +21,7 @@ public class PaymentController {
     private final PaymentService paymentService;
 
     @PostMapping
-    public ResponseEntity<String> createUser(@RequestBody CardDto cardDto, PaymentDto paymentDto, @PathVariable("id") Long id) throws UnknownHostException {
+    public ResponseEntity<String> makePayment(@RequestBody CardDto cardDto, PaymentDto paymentDto, @PathVariable("id") Long id) throws UnknownHostException {
         return new ResponseEntity<>(paymentService.makePayment(cardDto,paymentDto,id), HttpStatus.CREATED);
 
 

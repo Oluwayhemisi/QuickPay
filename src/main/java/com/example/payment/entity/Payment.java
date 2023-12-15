@@ -29,6 +29,7 @@ public class Payment {
     @Column(nullable = false)
     private String currency;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private PaymentMethod paymentMethod;
 
@@ -37,6 +38,7 @@ public class Payment {
 
     private String transaction_reference;
 
+    @Enumerated(EnumType.STRING)
     private Status status;
 
     @ManyToOne

@@ -14,8 +14,6 @@ import org.springframework.beans.factory.annotation.Value;
 @Setter
 public class CardDto {
 
-    @Value("${public.key}")
-    private String publicKey;
     private String cardNumber;
     private String cvv;
     private String expiryMonth;
@@ -26,8 +24,7 @@ public class CardDto {
     private String phoneNumber;
     private String country;
     private String amount;
-    private String PIN;
+    private String pin;
 
-    @Value("${encryption.key}")
-    private String encryptionKey;
+
 }
