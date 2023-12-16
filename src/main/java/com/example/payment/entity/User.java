@@ -29,6 +29,5 @@ public class User {
 
     private String phoneNumber;
 
-    @OneToMany  (mappedBy = "user",cascade = CascadeType.ALL)
-    private List<Payment> payments;
+
 }

@@ -6,6 +6,7 @@ import com.example.payment.entity.Payment;
 import com.example.payment.entity.User;
 import com.example.payment.exceptions.UserException;
 import com.example.payment.payload.UserDto;
+import com.example.payment.payload.UserResponse;
 import com.example.payment.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -24,7 +25,7 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
 
     @Override
-    public UserDto createUser(UserDto userDto) {
+    public UserResponse createUser(UserDto userDto) {
         Optional<User> user = userRepository.findByEmail(userDto.getEmail());
         if (user.isPresent()) {
             throw new UserException("User Already Exist", HttpStatus.BAD_REQUEST);
@@ -34,25 +35,13 @@ public class UserServiceImpl implements UserService {
         user1.setPhoneNumber(userDto.getPhoneNumber());
         user1.setPassword(userDto.getPassword());
 
-        Payment payment = new Payment();
-        payment.setAmount("0.0");
-        payment.setPaymentMethod(PaymentMethod.CARD);
-        payment.setCurrency("NGN");
-        payment.setStatus(Status.PENDING);
-
-        payment.setUser(user1);
-
-        List<Payment> payments = new ArrayList<>();
-        payments.add(payment);
-        user1.setPayments(payments);
-
         User savedUser = userRepository.save(user1);
-        UserDto userDto1 = new UserDto();
-        userDto1.setEmail(savedUser.getEmail());
-        userDto1.setPhoneNumber(savedUser.getPhoneNumber());
-        userDto1.setId(savedUser.getId());
+        UserResponse userResponse = new UserResponse();
+        userResponse.setEmail(savedUser.getEmail());
+        userResponse.setPhoneNumber(savedUser.getPhoneNumber());
+        userResponse.setId(savedUser.getId());
 
-        return userDto1;
+        return userResponse;
 
     }
 }

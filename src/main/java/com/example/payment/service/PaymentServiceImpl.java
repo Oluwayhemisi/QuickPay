@@ -4,43 +4,43 @@ import com.example.payment.Enum.PaymentMethod;
 import com.example.payment.Enum.Status;
 import com.example.payment.entity.Payment;
 import com.example.payment.entity.User;
-import com.example.payment.exceptions.PaymentException;
 import com.example.payment.exceptions.UserException;
 import com.example.payment.payload.CardDto;
 import com.example.payment.payload.PaymentDto;
+import com.example.payment.payload.PaymentResponse;
+import com.example.payment.payload.ValidateDto;
 import com.example.payment.repository.PaymentRepository;
 import com.example.payment.repository.UserRepository;
 import com.flutterwave.rave.java.entry.cardPayment;
 import com.flutterwave.rave.java.entry.validateCardCharge;
 import com.flutterwave.rave.java.payload.cardLoad;
 import com.flutterwave.rave.java.payload.validateCardPayload;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j;
-import lombok.extern.slf4j.Slf4j;
-import netscape.javascript.JSObject;
+import lombok.NoArgsConstructor;
 import org.json.JSONObject;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import java.net.UnknownHostException;
 import java.security.SecureRandom;
+import java.util.List;
 
 
 @Service
-@RequiredArgsConstructor
+@NoArgsConstructor
 public class PaymentServiceImpl implements PaymentService{
-    private final String PUBLIC_KEY;
-    private final String ENCRYPTION_KEY;
+    private final String PUBLIC_KEY = System.getenv("PUBLIC_KEY");
+    private final String ENCRYPTION_KEY = System.getenv("ENCRYPTION_KEY");
 
-    private final UserRepository userRepository;
-    private final PaymentRepository paymentRepository;
+    @Autowired
+    private UserRepository userRepository;
 
-
+    @Autowired
+    private PaymentRepository paymentRepository;
 
 
 
     @Override
-    public String makePayment(CardDto cardDto, PaymentDto paymentDto, Long userId) throws UnknownHostException {
+    public PaymentResponse makePayment(CardDto cardDto, PaymentDto paymentDto, Long userId) throws UnknownHostException {
 //        if (paymentDto.getPaymentMethod() != PaymentMethod.CARD) {
 //            throw new PaymentException("Invalid payment method. Only CARD payments are supported.",HttpStatus.BAD_REQUEST);
 //        }
@@ -76,8 +76,6 @@ public class PaymentServiceImpl implements PaymentService{
             String response_one = cardPayment.doflwcardpayment(cardload);
 
 
-            System.out.println("response one ----------->"+response_one);
-
             JSONObject iObject = new JSONObject(response_one);
             JSONObject Object = iObject.optJSONObject("data");
 
@@ -86,31 +84,39 @@ public class PaymentServiceImpl implements PaymentService{
         }
 
 
-//        Payment payment = new Payment();
-//        payment.setAmount(cardDto.getAmount());
-//        payment.setPaymentMethod(PaymentMethod.CARD);
-//        payment.setCurrency("NGN");
-//        payment.setStatus(Status.PENDING);
-//        payment.setTransaction_reference(transaction_reference);
-//        User user = userRepository.findById(userId).orElseThrow(() -> new UserException("User not found", HttpStatus.NOT_FOUND));
-//        payment.setUser(user);
-//
-//        paymentRepository.save(payment);
-        return transaction_reference;
+        Payment payment = new Payment();
+        payment.setAmount(cardDto.getAmount());
+        payment.setPaymentMethod(PaymentMethod.CARD);
+        payment.setCurrency("NGN");
+        payment.setTransaction_reference(transaction_reference);
+        payment.setStatus(Status.SUCCESSFUL);
+        User user = userRepository.findById(userId).orElseThrow(() -> new UserException("User not found", HttpStatus.NOT_FOUND));
+        payment.setUser(user);
+
+        Payment savedPayment = paymentRepository.save(payment);
+        PaymentResponse paymentResponse = new PaymentResponse();
+        paymentResponse.setPayment(savedPayment);
+        paymentResponse.setTransactionReference(transaction_reference);
+        return paymentResponse;
     }
 
     @Override
-    public JSONObject validateCredentials(String transactionReference, String otp) {
+    public String validateCredentials(ValidateDto validateDto) {
 
         validateCardCharge validatecardcharge = new validateCardCharge();
         validateCardPayload validatecardpayload = new validateCardPayload();
         validatecardpayload.setPBFPubKey(PUBLIC_KEY);
-        validatecardpayload.setTransaction_reference(transactionReference);
-        validatecardpayload.setOtp(otp);
+        validatecardpayload.setTransaction_reference(validateDto.getTransactionReference());
+        validatecardpayload.setOtp(validateDto.getOtp());
+
 
         String response = validatecardcharge.doflwcardvalidate(validatecardpayload);
-        JSONObject myObject = new JSONObject(response);
-        return myObject;
+
+        return response;
+    }
+
+    public List<Payment> getPayments(Long userId) {
+        return paymentRepository.findByUserId(userId);
     }
 
     private String generateId(){
@@ -123,6 +129,8 @@ public class PaymentServiceImpl implements PaymentService{
 
         return "RF" + randomNumber;
     }
+
+
 
 
 }
