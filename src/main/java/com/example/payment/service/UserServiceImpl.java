@@ -1,8 +1,5 @@
 package com.example.payment.service;
 
-import com.example.payment.Enum.PaymentMethod;
-import com.example.payment.Enum.Status;
-import com.example.payment.entity.Payment;
 import com.example.payment.entity.User;
 import com.example.payment.exceptions.UserException;
 import com.example.payment.payload.UserDto;
@@ -13,8 +10,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
 

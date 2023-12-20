@@ -18,6 +18,7 @@ import com.flutterwave.rave.java.payload.validateCardPayload;
 import lombok.NoArgsConstructor;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import java.net.UnknownHostException;
@@ -26,10 +27,14 @@ import java.util.List;
 
 
 @Service
-@NoArgsConstructor
+
 public class PaymentServiceImpl implements PaymentService{
-    private final String PUBLIC_KEY = System.getenv("PUBLIC_KEY");
-    private final String ENCRYPTION_KEY = System.getenv("ENCRYPTION_KEY");
+
+    @Value("${PUBLIC_KEY}")
+    private  String PUBLIC_KEY;
+
+    @Value("${ENCRYPTION_KEY}")
+    private  String ENCRYPTION_KEY;
 
     @Autowired
     private UserRepository userRepository;
@@ -41,9 +46,6 @@ public class PaymentServiceImpl implements PaymentService{
 
     @Override
     public PaymentResponse makePayment(CardDto cardDto, PaymentDto paymentDto, Long userId) throws UnknownHostException {
-//        if (paymentDto.getPaymentMethod() != PaymentMethod.CARD) {
-//            throw new PaymentException("Invalid payment method. Only CARD payments are supported.",HttpStatus.BAD_REQUEST);
-//        }
 
         cardPayment cardPayment = new cardPayment();
         cardLoad cardload = new cardLoad();

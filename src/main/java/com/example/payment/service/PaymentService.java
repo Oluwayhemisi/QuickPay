@@ -5,8 +5,7 @@ import com.example.payment.payload.CardDto;
 import com.example.payment.payload.PaymentDto;
 import com.example.payment.payload.PaymentResponse;
 import com.example.payment.payload.ValidateDto;
-import netscape.javascript.JSObject;
-import org.json.JSONObject;
+
 
 import java.net.UnknownHostException;
 import java.util.List;
